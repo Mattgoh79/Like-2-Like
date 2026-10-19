@@ -23,7 +23,7 @@ How to run:
 7. Copy the client Id
 8. In the project folder, create a file called .env
 9. Type in
-      CLIENT_ID = "insert client ID in here, dont type this. replace this paragraph with the client id"
+      VITE_CLIENT_ID = "insert client ID in here, dont type this. replace this paragraph with the client id"
 10. In the project folder, type in "npm i" into the terminal
 11. then type npm run dev.
 12. In your browser, open http://127.0.0.1:5173
