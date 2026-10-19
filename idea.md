@@ -1,0 +1,22 @@
+OK SO. need to make it so they can both log in. OR like, if no need to log in to see data would be best but idk how the API works rn so lets just see first.
+
+
+1. LINK. when you go to the website. press button, bring you to like another page with unique ID. you log in. then press share link. then the other person can log in. then got both accounts. boom do the compare share song. list them all out. add a query filter, name, desc, artist, wtv lah later.
+
+2. Sorting
+	-Artist Name
+	-Song Name
+	-Song Listens
+	-How Many times the user has listened to the song
+	
+3. Add Search too
+
+4. Use Redux and all cause i want the information to stay if its already been called dowan waste 
+
+5. CYBPERUNK VISUALS T-T I LOVE EDGERUNNERS!!!
+
+6. add the preview functionality? so when you press the song a preview plays so you know what song it is 
+
+7. ok can make it an app also like. so it keeps you logged in, no need re log in everytime you visit.
+
+8. maybe keep saved connections liao so if you connect with someone, you can always click on them and see your common liked songs and it's updated currently

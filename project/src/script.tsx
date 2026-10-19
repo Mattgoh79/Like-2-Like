@@ -1,0 +1,203 @@
+const clientId = import.meta.env.VITE_CLIENT_ID || '';
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+
+let offset = 0;
+
+
+if (code) {
+    window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+    );
+    getLibrary();
+}
+else if (sessionStorage.getItem('spotifyTracks') == null) {
+    {
+        getLibrary();
+}
+}
+
+
+async function fetchProfile(token: any) {
+    const result = await fetch("https://api.spotify.com/v1/me", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    console.log(result);
+
+    return await result.json();
+}
+
+async function getLibrary(){
+
+    const slot = sessionStorage.getItem("pending") ?? "spotifyTracks";
+    //so if its the first time the promise is being called,, pendingSlot wouldnt exist
+    //therefore it would make spotifyTracks
+
+    if  (code && sessionStorage.getItem("spotifyTracks") == null){  //if signed in, and spotify tracks dont exist (meaning first user log in)
+
+     console.log("First User Fetch");
+
+        const accessToken = await getAccessToken(clientId, code);
+        const profile = await fetchProfile(accessToken);
+        const tracks = await trackFetchLoop(accessToken, 0);
+
+        sessionStorage.setItem(slot, JSON.stringify(tracks));
+        sessionStorage.removeItem("pending");
+
+        // Store the first profile in an array
+        sessionStorage.setItem("accounts", JSON.stringify([profile]));
+
+        console.log("First account created and set");
+        return;//end so it doesnt run the else if
+    }
+
+    else if (code) { //second user and above signing in
+
+        //this will only be activated from pressing addNextUser currently.
+
+        
+        console.log("second user+  log in ");
+
+        const accessToken = await getAccessToken(clientId, code);
+
+        const profile = await fetchProfile(accessToken);
+        console.log(profile)
+        const accounts = JSON.parse(sessionStorage.getItem("accounts") ?? "[]");  //turns sessionStorage accounts into array 
+        console.log(profile.account_id);
+        console.log(accounts)
+        let i = -1;
+        for (let i = 0; i < accounts.length; i++) {
+            if (profile.account_id === accounts[i].account_id) {
+                console.log("SAME USER GET OTU GET OUT GET OUT OGEUTOE TO")
+                return; // GET OUT OF getLIbrary RUN!!!!
+            }
+        }
+
+
+        const tracks = await trackFetchLoop(accessToken, 0);
+        sessionStorage.setItem(slot, JSON.stringify(tracks))
+        sessionStorage.removeItem("pending");
+        accounts.push(profile);  //push the new profile to that array
+        console.log("accounts pushed")  
+        sessionStorage.setItem("accounts", JSON.stringify(accounts))  //set accounts as that new array
+        //later on can change it to just save profile.id, maybe for efficiency 
+    } 
+    else if (!sessionStorage.getItem("spotifyTracks")) {  //if havent sign in yet
+        await redirectToAuthCodeFlow(clientId, "spotifyTracks");
+        console.log("FIRST TIME LOGGING IN!!!!");
+
+        return [];
+        //BECAUSE after auth, you go back to the Like2Like Page, then when code is got, it run getLibrary again, prompting getTracks
+    }
+
+}
+
+export async function trackFetchLoop(token: any, offset: number) {
+    //so i create a json, each  new loop, will append to that list, .json() it, that json will be what i return to be rendered!!
+
+    const allTracks: any[] = [];
+
+    while(offset<100){
+        const data = await fetchTracks(token, 50, offset);
+        allTracks.push(...data.items);
+        offset += 50;
+
+        if(offset >= data.total){
+            break;
+        }
+
+    }
+
+    return allTracks;
+
+}
+
+
+async function fetchTracks(token: any, limit = 50, offset: any) { // GET request for the user's Liked Songs. Fetches 50 songs per call 
+    const result = await fetch(`https://api.spotify.com/v1/me/tracks?offset=${offset}&limit=${limit}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await result.json();
+    if (!result.ok) {
+        console.error("Tracks error:", result.status, data);
+        throw new Error(data.error?.message || `Failed: ${result.status}`);
+    }
+    console.log(data);
+    return data;
+}
+
+export async function redirectToAuthCodeFlow(clientId: string, slot: string) {
+    const verifier = generateCodeVerifier(128);
+    const challenge = await generateCodeChallenge(verifier);
+
+    localStorage.setItem("verifier", verifier);
+    sessionStorage.setItem("pending", slot);
+
+    const params = new URLSearchParams();
+    params.append("client_id", clientId);
+    params.append("response_type", "code");
+    params.append("redirect_uri", "http://127.0.0.1:5173/callback");
+    params.append("scope", "user-read-private user-read-email user-library-read"); //so this is like, what things are you accessing
+    params.append("code_challenge_method", "S256");
+    params.append("code_challenge", challenge);
+    params.append("show_dialog", "true")
+
+    document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+
+    //add promise?
+
+
+}
+
+function generateCodeVerifier(length: number) {
+    let text = '';
+    let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    for (let i = 0; i < length; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+}
+
+async function generateCodeChallenge(codeVerifier: string | undefined) {
+    const data = new TextEncoder().encode(codeVerifier);
+    const digest = await window.crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+}
+
+export async function getAccessToken(clientId: string, code: string) {
+    const verifier = localStorage.getItem("verifier");
+    if (!verifier) {
+        throw new Error("No verifier in localStorage - did you reload after redirect, or is this a stale/reused code?");
+    }
+
+    const params = new URLSearchParams();
+    params.append("client_id", clientId);
+    params.append("grant_type", "authorization_code");
+    params.append("code", code);
+    params.append("redirect_uri", "http://127.0.0.1:5173/callback");
+    params.append("code_verifier", verifier);
+
+    const result = await fetch("https://accounts.spotify.com/api/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params
+    });
+
+    const data = await result.json();
+    if (!result.ok) {
+        console.error("Token exchange failed:", data);
+        throw new Error(data.error_description || data.error);
+    }
+    return data.access_token;
+}
+
+
