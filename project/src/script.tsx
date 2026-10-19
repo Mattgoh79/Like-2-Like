@@ -101,7 +101,7 @@ export async function trackFetchLoop(token: any, offset: number) {
 
     const allTracks: any[] = [];
 
-    while(offset<100){
+    while(offset<10000){
         const data = await fetchTracks(token, 50, offset);
         allTracks.push(...data.items);
         offset += 50;
