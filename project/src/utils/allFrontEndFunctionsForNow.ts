@@ -3,7 +3,7 @@
 
 import { redirectToAuthCodeFlow } from "../script";
 
-const clientId = "8a57f765adbf4334abf64a2e370ec977";
+const clientId = import.meta.env.VITE_CLIENT_ID || '';
 const addNextUser = () => {
     redirectToAuthCodeFlow(clientId, "spotifyTracks2")
     //and when it goes back to Like2Like from the auth page, the if (code) runs so it runs getLibrary
