@@ -14,11 +14,11 @@ How to run:
 3. Go to Dashboard after clicking on your profile picture on the top right
 4. Create App
 5. Enter Details: 
-      Name: {anything}
-      Description: {anything}
-      Redirect URIs: http://127.0.0.1:5173/callback
-      Tick Web API
-      Save
+-       Name: {anything}
+-       Description: {anything}
+-       Redirect URIs: http://127.0.0.1:5173/callback
+-       Tick Web API
+-       Save
 6. Go into the newly created app in the dashboard
 7. Copy the client Id
 8. In the project folder, create a file called .env
