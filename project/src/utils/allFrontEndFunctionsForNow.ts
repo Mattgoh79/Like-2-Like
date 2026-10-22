@@ -1,40 +1,87 @@
-
-// const addNextUser = () => {
-
 import { redirectToAuthCodeFlow } from "../script";
 
 const clientId = import.meta.env.VITE_CLIENT_ID || '';
+
+const getItem = (key: string) => sessionStorage.getItem(key);
+    
 const addNextUser = () => {
-    redirectToAuthCodeFlow(clientId, "spotifyTracks2")
-    //and when it goes back to Like2Like from the auth page, the if (code) runs so it runs getLibrary
+    let x =1;
+    while (getItem("spotifyTracks" + x) !== null) {
+        console.log(x);
+        x++;
+    }
+
+    console.log(x)
+    redirectToAuthCodeFlow(clientId, "spotifyTracks" + x) //I LOVE JAVASCRIPT!!!
+}
+
+const clearMatches = () => {
+    if(getItem("matches") != null) {
+        sessionStorage.removeItem("matches");
+        location.reload();
+    }
+    else{
+        alert("WHAT ARE YOU CLEARING BRO LOCK IN!!!!")
+    }
 }
 
 
+//ok this function was written by ai im too dumb for this
 const compareLibraries = () => {
-  const a = JSON.parse(sessionStorage.getItem('spotifyTracks') ?? '[]');
-  const b = JSON.parse(sessionStorage.getItem('spotifyTracks2') ?? '[]');
 
-    console.log(a);
-    console.log(b); //ok so a and b is correct, but its giving only a
+    if(getItem("matches") != null) {
+        console.log("AudioMatch complete STOP WASTING COMPUTER RESOURCES")
+    }
+    else if(getItem("spotifyTracks2") != null){
+        let x = 1;
 
+        // Get the first user's tracks.
+        let matches = JSON.parse(
+            getItem(`spotifyTracks${x}`) ?? "[]"
+        );
 
-    const idsB = new Set(
-        b.map((item: { track: { id: string } }) => item.track?.id)
-    );
+        if (matches.length === 0) {
+            console.log("No tracks found for the first user.");
+            return [];
+        }
 
-    const matches = a.filter(
-        (item: { track: { id: string } }) => idsB.has(item.track?.id)
-    );
+        x++;
 
-    sessionStorage.setItem("matches", JSON.stringify(matches));
+        // Compare against each subsequent user's library.
+        while (getItem(`spotifyTracks${x}`) !== null) {
+            const tracks = JSON.parse(
+                getItem(`spotifyTracks${x}`) ?? "[]"
+            );
 
-    console.log("Matching tracks:", matches);
+            const trackIds = new Set(
+                tracks.map((item: { track?: { id?: string } }) => item.track?.id)
+            );
 
-    return matches;
+            matches = matches.filter(
+                (item: { track?: { id?: string } }) =>
+                    item.track?.id && trackIds.has(item.track.id)
+            );
+
+            x++;
+        }
+
+        sessionStorage.setItem("matches", JSON.stringify(matches));
+
+        console.log("Matching tracks:", matches);
+
+        location.reload();
+
+        return matches;
+    }
+    else{
+        alert("Bro wants to find inner peace by not comparing himself to others   😂😂😂😂")
+    }
 };
 
 
 export {
-        addNextUser,
-        compareLibraries
-    }
+    addNextUser,
+    clearMatches,
+    compareLibraries
+};
+

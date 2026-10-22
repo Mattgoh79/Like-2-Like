@@ -7,7 +7,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-    { ignores: ['dist', '.circleci/config.yml'] },
+    { ignores: ['build', 'dist', '.circleci/config.yml'] },
     {
         files: ['**/*.{ts,tsx,js,jsx}'],
         languageOptions: {
@@ -24,6 +24,11 @@ export default tseslint.config(
             react: reactPlugin,
             prettier: prettierPlugin,
         },
+        settings: {
+            react: {
+                version: 'detect',
+            },
+        },
         extends: [js.configs.recommended, ...tseslint.configs.recommended, prettierConfig],
         rules: {
             // Ensure Prettier errors show up in ESLint
@@ -36,7 +41,7 @@ export default tseslint.config(
             semi: ['error', 'always'],
 
             // Unused variable warning
-            '@typescript-eslint/no-unused-vars': ['warn'],
+            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
 
             // Quotes
             quotes: ['error', 'single', { avoidEscape: true }],

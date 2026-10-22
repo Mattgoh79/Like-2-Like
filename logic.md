@@ -65,16 +65,18 @@ this way can save api quota by not rerunning fetchTracks on already fetched Trac
 
 
 
+Tackling dynamic tracks
 
+1. trackList already takes slot. therefore, dynamic
 
+2. userCard takes slot, therefore dynamic
 
+NEED TO CHANGE APP.TSX AND SCRIPT.TSX AND allFrontendFunctions
 
+3. script.tsx uses slot alr so should be ok
 
+4. changed addNextUser to be dynamic instead of using spotifyTracks2
 
-
-
-
-
-
+5. now need to change compare
 
 

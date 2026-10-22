@@ -1,9 +1,7 @@
 const clientId = import.meta.env.VITE_CLIENT_ID || '';
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
-
 let offset = 0;
-
 
 if (code) {
     window.history.replaceState(
@@ -11,14 +9,7 @@ if (code) {
         document.title,
         window.location.pathname
     );
-    getLibrary();
 }
-else if (sessionStorage.getItem('spotifyTracks') == null) {
-    {
-        getLibrary();
-}
-}
-
 
 async function fetchProfile(token: any) {
     const result = await fetch("https://api.spotify.com/v1/me", {
@@ -33,11 +24,9 @@ async function fetchProfile(token: any) {
 
 async function getLibrary(){
 
-    const slot = sessionStorage.getItem("pending") ?? "spotifyTracks";
-    //so if its the first time the promise is being called,, pendingSlot wouldnt exist
-    //therefore it would make spotifyTracks
+    const slot = sessionStorage.getItem("pending") ?? "spotifyTracks1"; //if first log in, slot = spotifyTracks1
 
-    if  (code && sessionStorage.getItem("spotifyTracks") == null){  //if signed in, and spotify tracks dont exist (meaning first user log in)
+    if  (code && sessionStorage.getItem("spotifyTracks1") == null){  //if signed in, and spotify tracks dont exist (meaning first user log in)
 
      console.log("First User Fetch");
 
@@ -51,29 +40,24 @@ async function getLibrary(){
         // Store the first profile in an array
         sessionStorage.setItem("accounts", JSON.stringify([profile]));
 
+        
         console.log("First account created and set");
-        return;//end so it doesnt run the else if
+        return "loaded";//end so it doesnt run the else if
     }
 
     else if (code) { //second user and above signing in
-
-        //this will only be activated from pressing addNextUser currently.
-
         
         console.log("second user+  log in ");
 
         const accessToken = await getAccessToken(clientId, code);
 
         const profile = await fetchProfile(accessToken);
-        console.log(profile)
-        const accounts = JSON.parse(sessionStorage.getItem("accounts") ?? "[]");  //turns sessionStorage accounts into array 
-        console.log(profile.account_id);
-        console.log(accounts)
+        const accounts = JSON.parse(sessionStorage.getItem("accounts") ?? "[]");
         let i = -1;
         for (let i = 0; i < accounts.length; i++) {
             if (profile.account_id === accounts[i].account_id) {
                 console.log("SAME USER GET OTU GET OUT GET OUT OGEUTOE TO")
-                return; // GET OUT OF getLIbrary RUN!!!!
+                return "loaded"; // GET OUT OF getLIbrary RUN!!!!
             }
         }
 
@@ -84,16 +68,19 @@ async function getLibrary(){
         accounts.push(profile);  //push the new profile to that array
         console.log("accounts pushed")  
         sessionStorage.setItem("accounts", JSON.stringify(accounts))  //set accounts as that new array
+        return "loaded";
         //later on can change it to just save profile.id, maybe for efficiency 
     } 
-    else if (!sessionStorage.getItem("spotifyTracks")) {  //if havent sign in yet
-        await redirectToAuthCodeFlow(clientId, "spotifyTracks");
+    else if (!sessionStorage.getItem("spotifyTracks1")) {  //if havent sign in yet
+        await redirectToAuthCodeFlow(clientId, "spotifyTracks1");
         console.log("FIRST TIME LOGGING IN!!!!");
 
         return [];
         //BECAUSE after auth, you go back to the Like2Like Page, then when code is got, it run getLibrary again, prompting getTracks
     }
-
+    else if(!code){
+        return "loaded"
+    }
 }
 
 export async function trackFetchLoop(token: any, offset: number) {
@@ -101,7 +88,7 @@ export async function trackFetchLoop(token: any, offset: number) {
 
     const allTracks: any[] = [];
 
-    while(offset<10000){
+    while(offset<100){
         const data = await fetchTracks(token, 50, offset);
         allTracks.push(...data.items);
         offset += 50;
@@ -142,15 +129,12 @@ export async function redirectToAuthCodeFlow(clientId: string, slot: string) {
     params.append("client_id", clientId);
     params.append("response_type", "code");
     params.append("redirect_uri", "http://127.0.0.1:5173/callback");
-    params.append("scope", "user-read-private user-read-email user-library-read"); //so this is like, what things are you accessing
+    params.append("scope", "user-read-private user-read-email user-library-read");
     params.append("code_challenge_method", "S256");
     params.append("code_challenge", challenge);
     params.append("show_dialog", "true")
 
     document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
-
-    //add promise?
-
 
 }
 
@@ -201,3 +185,4 @@ export async function getAccessToken(clientId: string, code: string) {
 }
 
 
+export {getLibrary}
