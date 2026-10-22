@@ -13,7 +13,7 @@
 }
 
 .header {
-    font-size: 3lvb;
+    font-size: 100%;
     text-align: center;
 }
 
@@ -35,7 +35,6 @@
 
 }
 
-
 .trackName {
     color: white;
     font-size:large;
@@ -51,4 +50,49 @@
     white-space: nowrap;    
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.sortSection {
+
+}
+
+.selectionButton {
+    margin: 5px;
+
+}
+
+.directionButton {
+    border-color: transparent;
+    background-color: transparent;
+    border-radius: 40px;
+    &:hover{
+        cursor:pointer;
+        background-color: rgb(131, 126, 126);
+    }
+
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.pageButton {
+    padding: 8px 14px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background-color: #1f1f1f;
+    color: white;
+    cursor: pointer;
+}
+
+.pageButton:hover:not(:disabled) {
+    background-color: #333;
+}
+
+.pageButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }

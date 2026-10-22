@@ -1,8 +1,6 @@
-import { array } from "node:stream/iter";
-import styles from "./nameCard.module.scss"
+import styles from "./nameCard.module.scss";
 
 type nameCardProps  = {
-    //actuallyl should i do number instead? so then 0 would be the first account_name from the array
     arrayNumber: number;
     name?: string;
 }

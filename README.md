@@ -7,7 +7,27 @@ Functionality: Only works if both users log in using the same tab on the same de
 
 Deployment: LocalHost
 
-How to run:
+Features:
+-	Log in 2 users
+-	Compare both user's libraries and see which liked songs you both have in common
+
+
+**Ver 0.2**
+
+Functionality: Only works if all users log in using the same tab on the same device
+
+Deployment: LocalHost and Vercel?? if i can get it working
+
+Added Features:
+-	Sort By:
+-      Latest
+-      Artists
+-      Songs
+
+-	Pagination!
+
+
+**How to run on LocalHost:**
 
 1. Clone this repo
 2. Create a Spotify Developer Account (I wanna save my API quota so use your own thanks)
@@ -27,4 +47,3 @@ How to run:
 10. In the project folder, type in "npm i" into the terminal
 11. then type npm run dev.
 12. In your browser, open http://127.0.0.1:5173
-

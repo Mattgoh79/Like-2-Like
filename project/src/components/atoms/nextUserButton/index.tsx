@@ -8,7 +8,6 @@ type buttonProps = {
 
 export const NextUserButton= ({onClick, children} : buttonProps)=> {
 
-
     return(
         <div>
             <button className={styles.button} 
